@@ -1,0 +1,20 @@
+suppression, thresholds.
+
+timeperiod in 2 fields ,logged and expires then can select based on now being between logged and expired.
+then if count > allowed can enable suppress/threshold.
+
+may place in event??? and /or alert??
+
+select * from ALERT join event on event.alert_uuid = uuid where alert_state <1  AND logged < now - 30 AND now < expired
+
+need to also use alert_correllation_id and check against passed in param from new alert.
+
+Maybe treat these like rules ... checking all rather than fail on first.
+
+suppress count and or count/seconds
+Threshold count/seconds
+AlertAfter second message in regex not seen (or in seconds)
+
+need timer task to clear alerts/events after 24 hours.
+
+
