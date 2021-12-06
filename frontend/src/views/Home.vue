@@ -53,9 +53,9 @@
           <template #head()="scope">
             <div
               class="text-nowrap"
-              style="vertical-align: center; height: 20px"
+              style="vertical-align: center; height: 20px;"
             >
-              <span v-if="scope.label != 'Alert Text'">{{ scope.label }}</span>
+              <span v-if="scope.label != 'Alert Text' && scope.label != 'Alert State'">{{ scope.label }}</span>
               <div style="float: right" v-if="scope.label === 'Alert Text'">
                 <span v-if="!editFilter">{{ scope.label }}</span>
                 <span v-if="editFilter">
@@ -109,6 +109,60 @@
                     icon="filter"
                   ></b-icon>
                 </b-button>
+              </div>
+              <div style="float: right;" v-if="scope.label === 'Alert State'">
+                <span>
+                  {{ scope.label }}
+                    <b-badge :variant="field" v-for="field in $store.getters.getAlertStates"
+                             :key="field">{{
+                        field
+                      }}<b-button
+                        variant="light"
+                        size="sm"
+                        @click="
+                        //$el.ownerDocument.defaultView.console.log($event);
+                        const text = $event.target.parentElement.firstChild.nodeValue;
+                        const index = $store.getters.getAlertStates.indexOf(text);
+                        const alertStates = $store.getters.getAlertStates;
+                        alertStates.splice(index,1);
+                        if(index >=0) {
+                          $store.commit('setAlertStates', alertStates.sort())
+                        }
+                        $el.ownerDocument.body.click();
+                    "
+                    >X</b-button
+                    ></b-badge>
+                    <b-button
+                        v-if="$store.getters.getAlertStates.length > 0"
+                        variant="light"
+                        size="sm"
+                        @click="
+                        $store.commit('setAlertStates', []);
+                      "
+                    >X</b-button
+                    >
+                  <b-dropdown dropleft text="+" no-caret variant="light">
+                    <b-dropdown-form>
+                      <b-button-toolbar>
+                        <b-button-group class="mx-1">
+                          <b-button :variant="field" v-for="field in ['Open', 'Resolved']"
+                                    :key="field"
+                              @click="
+                              //$el.ownerDocument.defaultView.console.log($event);
+                              const text = $event.target.innerText;
+                              const index = $store.getters.getAlertStates.indexOf(text);
+                              const alertStates = $store.getters.getAlertStates;
+                              index >=0 ? alertStates.splice(index,1) : alertStates.push(text);
+                              $store.commit('setAlertStates', alertStates.sort());
+                              $el.ownerDocument.body.click();
+                          "
+                          >{{ field }}</b-button
+                          >
+                        </b-button-group>
+                      </b-button-toolbar>
+                    </b-dropdown-form>
+                    </b-dropdown>
+                </span>
               </div>
             </div>
           </template>
@@ -352,19 +406,22 @@ export default {
   computed: {
     currentAlerts: function () {
       const alertFilters = this.$store.getters.getAlertFilters;
+      const alertStates = this.$store.getters.getAlertStates;
       const alertFiltered = this.$store.getters.getDeDup;
       return this.$store.getters.getDeDup === "false"
         ? this.alerts.filter(function (item) {
             return (
-              alertFilters.length <= 0 ||
-              alertFilters.indexOf(item.alertCorrelationId) >= 0
+                (alertFilters.length <= 0 ||
+              alertFilters.indexOf(item.alertCorrelationId) >= 0) &&
+                (alertStates.length <= 0 ||alertStates.indexOf(item.alertState)>=0)
             );
           })
-        : alertFiltered === "filtered"
+        : alertFiltered === "filtered" || alertStates.length >=0
         ? this.visibleAlerts.filter(function (item) {
             return (
-              alertFilters.length <= 0 ||
-              alertFilters.indexOf(item.alertCorrelationId) >= 0
+                (alertFilters.length <= 0 ||
+              alertFilters.indexOf(item.alertCorrelationId) >= 0) &&
+                (alertStates.length <= 0 ||alertStates.indexOf(item.alertState)>=0)
             );
           })
         : this.visibleAlerts;
@@ -537,6 +594,7 @@ export default {
       ],
       alerts: [],
       editFilter: false,
+      stateFilter: false,
     };
   },
 };

@@ -27,12 +27,12 @@
                   >Suppress</b-button
                 >
                 <b-button
-                  variant="Threshold"
+                  variant="Breach"
                   v-on:click="
-                    filter.alertFilterType = 'Threshold';
+                    filter.alertFilterType = 'Breach';
                     $el.ownerDocument.body.click();
                   "
-                  >Threshold</b-button
+                  >Breach</b-button
                 >
               </b-button-group>
             </b-button-toolbar>

@@ -15,6 +15,7 @@ export default new Vuex.Store({
     deDup: "true",
     alertFilters: [],
     alertTextFilters: "",
+    alertStates: [],
   },
   mutations: {
     setDeDup(state, dedup) {
@@ -25,6 +26,9 @@ export default new Vuex.Store({
     },
     setAlertFilters(state, filters) {
       state.alertFilters = filters;
+    },
+    setAlertStates(state, filters) {
+      state.alertStates = filters;
     },
     setAlerts(state, alerts) {
       state.alerts = alerts;
@@ -64,6 +68,9 @@ export default new Vuex.Store({
     },
     getAlertFilters: (state) => {
       return state.alertFilters;
+    },
+    getAlertStates: (state) => {
+      return state.alertStates;
     },
     getDeDup: (state) => {
       return state.deDup;

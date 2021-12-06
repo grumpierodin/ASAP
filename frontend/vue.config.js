@@ -6,6 +6,7 @@ module.exports = {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
+    port: 8081,
     proxy: {
       "/api/realtime/service": {
         target: "http://localhost:8080",
@@ -14,6 +15,16 @@ module.exports = {
       "/api/realtime": {
         target: "http://localhost:8080",
         ws: true,
+        changeOrigin: true,
+      },
+      "/api/users/signin": {
+        target: "http://localhost:8080",
+        ws: false,
+        changeOrigin: true,
+      },
+      "/api/users/signup": {
+        target: "http://localhost:8080",
+        ws: false,
         changeOrigin: true,
       },
       "/api/users": {

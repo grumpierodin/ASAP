@@ -107,7 +107,7 @@ public class AlertService {
                     }
                 }
                 if(!hasNonExpiredAlerts(alert, filter)) {
-                    if(filter.getAlertFilterType()==AlertFilterType.Threshold) {
+                    if(filter.getAlertFilterType()==AlertFilterType.Breach) {
                         filtered=true;
                     } else {
                         filtered=false;
