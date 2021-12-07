@@ -53,7 +53,7 @@
           <template #head()="scope">
             <div
               class="text-nowrap"
-              style="vertical-align: center; height: 20px;"
+              style="vertical-align: center; height: 22px;"
             >
               <span v-if="scope.label != 'Alert Text' && scope.label != 'Alert State'">{{ scope.label }}</span>
               <div style="float: right" v-if="scope.label === 'Alert Text'">
@@ -111,8 +111,8 @@
                 </b-button>
               </div>
               <div style="float: right;" v-if="scope.label === 'Alert State'">
-                <span>
-                  {{ scope.label }}
+                {{ scope.label }}
+                <span v-if="editFilter">
                     <b-badge :variant="field" v-for="field in $store.getters.getAlertStates"
                              :key="field">{{
                         field
@@ -135,17 +135,18 @@
                     <b-button
                         v-if="$store.getters.getAlertStates.length > 0"
                         variant="light"
-                        size="sm"
+                        size="sm-0"
                         @click="
                         $store.commit('setAlertStates', []);
+                        editFilter = !editFilter;
                       "
                     >X</b-button
                     >
                   <b-dropdown dropleft text="+" no-caret variant="light">
                     <b-dropdown-form>
                       <b-button-toolbar>
-                        <b-button-group class="mx-1">
-                          <b-button :variant="field" v-for="field in ['Open', 'Resolved']"
+                        <b-button-group>
+                          <b-button :variant="field" v-for="field in $store.getters.getValidStates"
                                     :key="field"
                               @click="
                               //$el.ownerDocument.defaultView.console.log($event);
@@ -163,6 +164,20 @@
                     </b-dropdown-form>
                     </b-dropdown>
                 </span>
+                <b-button
+                    variant="light"
+                    size="sm"
+                    @click="editFilter = !editFilter"
+                >
+                  <b-icon
+                      :variant="
+                      $store.getters.getAlertStates.length > 0
+                        ? 'Open'
+                        : 'Resolved'
+                    "
+                      icon="filter"
+                  ></b-icon>
+                </b-button>
               </div>
             </div>
           </template>
@@ -208,29 +223,13 @@
               <b-dropdown-form>
                 <b-button-toolbar>
                   <b-button-group class="mx-1">
-                    <b-button
-                      variant="High"
-                      v-on:click="
-                        notifyAlertChange(data.item, 'alertLevel', 'High');
+                    <b-button :variant="field" v-for="field in $store.getters.getValidLevels"
+                              :key="field"
+                              v-on:click="
+                        notifyAlertChange(data.item, 'alertLevel', $event.target.innerText);
                         $el.ownerDocument.body.click();
                       "
-                      >High</b-button
-                    >
-                    <b-button
-                      variant="Medium"
-                      v-on:click="
-                        notifyAlertChange(data.item, 'alertLevel', 'Medium');
-                        $el.ownerDocument.body.click();
-                      "
-                      >Medium</b-button
-                    >
-                    <b-button
-                      variant="Low"
-                      v-on:click="
-                        notifyAlertChange(data.item, 'alertLevel', 'Low');
-                        $el.ownerDocument.body.click();
-                      "
-                      >Low</b-button
+                    >{{ field}}</b-button
                     >
                   </b-button-group>
                 </b-button-toolbar>
@@ -249,21 +248,13 @@
               <b-dropdown-form>
                 <b-button-toolbar>
                   <b-button-group class="mx-1">
-                    <b-button
-                      variant="Open"
+                    <b-button :variant="field" v-for="field in $store.getters.getValidStates"
+                              :key="field"
                       v-on:click="
-                        notifyAlertChange(data.item, 'alertState', 'Open');
+                        notifyAlertChange(data.item, 'alertState', $event.target.innerText);
                         $el.ownerDocument.body.click();
                       "
-                      >Open</b-button
-                    >
-                    <b-button
-                      variant="Resolved"
-                      v-on:click="
-                        notifyAlertChange(data.item, 'alertState', 'Resolved');
-                        $el.ownerDocument.body.click();
-                      "
-                      >Resolved</b-button
+                      >{{ field}}</b-button
                     >
                   </b-button-group>
                 </b-button-toolbar>
@@ -416,12 +407,11 @@ export default {
                 (alertStates.length <= 0 ||alertStates.indexOf(item.alertState)>=0)
             );
           })
-        : alertFiltered === "filtered" || alertStates.length >=0
+        : alertFiltered === "filtered"
         ? this.visibleAlerts.filter(function (item) {
             return (
                 (alertFilters.length <= 0 ||
-              alertFilters.indexOf(item.alertCorrelationId) >= 0) &&
-                (alertStates.length <= 0 ||alertStates.indexOf(item.alertState)>=0)
+              alertFilters.indexOf(item.alertCorrelationId) >= 0)
             );
           })
         : this.visibleAlerts;
@@ -440,17 +430,20 @@ export default {
       this.$rt.logout();
     },
     uniqueById(arr, prop) {
+      const alertStates = this.$store.getters.getAlertStates;
       return Object.values(
         arr.reduce(function (acc, item) {
           var entity =
             item && item[prop] && item[prop] === item.rule.uuid
               ? item[prop]
               : item[prop] + item.rule.uuid;
-          if (item && item[prop] && !acc[entity]) {
-            acc[entity] = item;
-            acc[entity].count = 1;
-          } else if (item && item[prop] && acc[entity]) {
-            acc[entity].count += 1;
+          if((alertStates.length <= 0 ||alertStates.indexOf(item.alertState)>=0)) {
+            if (item && item[prop] && !acc[entity]) {
+              acc[entity] = item;
+              acc[entity].count = 1;
+            } else if (item && item[prop] && acc[entity]) {
+              acc[entity].count += 1;
+            }
           }
           return acc;
         }, {})
