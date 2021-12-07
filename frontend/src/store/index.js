@@ -16,6 +16,7 @@ export default new Vuex.Store({
     alertFilters: [],
     alertTextFilters: "",
     alertStates: [],
+    alertLevels: [],
     validStates: ['Open', 'Resolved'],
     validLevels: ['High', 'Medium', 'Low'],
   },
@@ -31,6 +32,9 @@ export default new Vuex.Store({
     },
     setAlertStates(state, filters) {
       state.alertStates = filters;
+    },
+    setAlertLevels(state, filters) {
+      state.alertLevels = filters;
     },
     setAlerts(state, alerts) {
       state.alerts = alerts;
@@ -70,6 +74,9 @@ export default new Vuex.Store({
     },
     getAlertFilters: (state) => {
       return state.alertFilters;
+    },
+    getAlertLevels: (state) => {
+      return state.alertLevels;
     },
     getAlertStates: (state) => {
       return state.alertStates;
