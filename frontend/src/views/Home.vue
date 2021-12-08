@@ -53,9 +53,9 @@
           <template #head()="scope">
             <div
               class="text-nowrap"
-              style="vertical-align: center; height: 20px"
+              style="vertical-align: center; height: 22px;"
             >
-              <span v-if="scope.label != 'Alert Text'">{{ scope.label }}</span>
+              <span v-if="scope.label != 'Alert Text' && scope.label != 'Alert State' && scope.label != 'Alert Level'">{{ scope.label }}</span>
               <div style="float: right" v-if="scope.label === 'Alert Text'">
                 <span v-if="!editFilter">{{ scope.label }}</span>
                 <span v-if="editFilter">
@@ -110,6 +110,144 @@
                   ></b-icon>
                 </b-button>
               </div>
+              <div style="float: right;" v-if="scope.label === 'Alert State'">
+                {{ scope.label }}
+                <span v-if="editFilter">
+                    <b-badge :variant="field" v-for="field in $store.getters.getAlertStates"
+                             :key="field">{{
+                        field
+                      }}<b-button
+                        variant="light"
+                        size="sm"
+                        @click="
+                        //$el.ownerDocument.defaultView.console.log($event);
+                        const text = $event.target.parentElement.firstChild.nodeValue;
+                        const index = $store.getters.getAlertStates.indexOf(text);
+                        const alertStates = $store.getters.getAlertStates;
+                        alertStates.splice(index,1);
+                        if(index >=0) {
+                          $store.commit('setAlertStates', alertStates.sort());
+                        }
+                        $el.ownerDocument.body.click();
+                    "
+                    >X</b-button
+                    ></b-badge>
+                    <b-button
+                        v-if="$store.getters.getAlertStates.length > 0"
+                        variant="light"
+                        size="sm-0"
+                        @click="
+                        $store.commit('setAlertStates', []);
+                        editFilter = !editFilter;
+                      "
+                    >X</b-button
+                    >
+                  <b-dropdown dropleft text="+" no-caret variant="light">
+                    <b-dropdown-form>
+                      <b-button-toolbar>
+                        <b-button-group>
+                          <b-button :variant="field" v-for="field in $store.getters.getValidStates"
+                                    :key="field"
+                              @click="
+                              //$el.ownerDocument.defaultView.console.log($event);
+                              const text = $event.target.innerText;
+                              const index = $store.getters.getAlertStates.indexOf(text);
+                              const alertStates = $store.getters.getAlertStates;
+                              index >=0 ? alertStates.splice(index,1) : alertStates.push(text);
+                              $store.commit('setAlertStates', alertStates.sort());
+                              $el.ownerDocument.body.click();
+                          "
+                          >{{ field }}</b-button
+                          >
+                        </b-button-group>
+                      </b-button-toolbar>
+                    </b-dropdown-form>
+                    </b-dropdown>
+                </span>
+                <b-button
+                    variant="light"
+                    size="sm"
+                    @click="editFilter = !editFilter"
+                >
+                  <b-icon
+                      :variant="
+                      $store.getters.getAlertStates.length > 0
+                        ? 'Open'
+                        : 'Resolved'
+                    "
+                      icon="filter"
+                  ></b-icon>
+                </b-button>
+              </div>
+              <div style="float: right;" v-if="scope.label === 'Alert Level'">
+                {{ scope.label }}
+                <span v-if="editFilter">
+                    <b-badge :variant="field" v-for="field in $store.getters.getAlertLevels"
+                             :key="field">{{
+                        field
+                      }}<b-button
+                          variant="light"
+                          size="sm"
+                          @click="
+                        //$el.ownerDocument.defaultView.console.log($event);
+                        const text = $event.target.parentElement.firstChild.nodeValue;
+                        const index = $store.getters.getAlertLevels.indexOf(text);
+                        const alertLevels = $store.getters.getAlertLevels;
+                        alertLevels.splice(index,1);
+                        if(index >=0) {
+                          $store.commit('setAlertLevels', alertLevels.sort())
+                        }
+                        $el.ownerDocument.body.click();
+                    "
+                      >X</b-button
+                      ></b-badge>
+                    <b-button
+                        v-if="$store.getters.getAlertLevels.length > 0"
+                        variant="light"
+                        size="sm-0"
+                        @click="
+                        $store.commit('setAlertLevels', []);
+                        editFilter = !editFilter;
+                      "
+                    >X</b-button
+                    >
+                  <b-dropdown dropleft text="+" no-caret variant="light">
+                    <b-dropdown-form>
+                      <b-button-toolbar>
+                        <b-button-group>
+                          <b-button :variant="field" v-for="field in $store.getters.getValidLevels"
+                                    :key="field"
+                                    @click="
+                              //$el.ownerDocument.defaultView.console.log($event);
+                              const text = $event.target.innerText;
+                              const alertLevels = $store.getters.getAlertLevels;
+                              const index = alertLevels.indexOf(text);
+                              index >=0 ? alertLevels.splice(index,1) : alertLevels.push(text);
+                              $store.commit('setAlertLevels', alertLevels.sort(sortLevels));
+                              $el.ownerDocument.body.click();
+                          "
+                          >{{ field }}</b-button
+                          >
+                        </b-button-group>
+                      </b-button-toolbar>
+                    </b-dropdown-form>
+                    </b-dropdown>
+                </span>
+                <b-button
+                    variant="light"
+                    size="sm"
+                    @click="editFilter = !editFilter"
+                >
+                  <b-icon
+                      :variant="
+                      $store.getters.getAlertLevels.length > 0
+                        ? 'Open'
+                        : 'Resolved'
+                    "
+                      icon="filter"
+                  ></b-icon>
+                </b-button>
+              </div>
             </div>
           </template>
           <template #cell(count)="data">
@@ -154,29 +292,13 @@
               <b-dropdown-form>
                 <b-button-toolbar>
                   <b-button-group class="mx-1">
-                    <b-button
-                      variant="High"
-                      v-on:click="
-                        notifyAlertChange(data.item, 'alertLevel', 'High');
+                    <b-button :variant="field" v-for="field in $store.getters.getValidLevels"
+                              :key="field"
+                              v-on:click="
+                        notifyAlertChange(data.item, 'alertLevel', $event.target.innerText);
                         $el.ownerDocument.body.click();
                       "
-                      >High</b-button
-                    >
-                    <b-button
-                      variant="Medium"
-                      v-on:click="
-                        notifyAlertChange(data.item, 'alertLevel', 'Medium');
-                        $el.ownerDocument.body.click();
-                      "
-                      >Medium</b-button
-                    >
-                    <b-button
-                      variant="Low"
-                      v-on:click="
-                        notifyAlertChange(data.item, 'alertLevel', 'Low');
-                        $el.ownerDocument.body.click();
-                      "
-                      >Low</b-button
+                    >{{ field}}</b-button
                     >
                   </b-button-group>
                 </b-button-toolbar>
@@ -195,21 +317,13 @@
               <b-dropdown-form>
                 <b-button-toolbar>
                   <b-button-group class="mx-1">
-                    <b-button
-                      variant="Open"
+                    <b-button :variant="field" v-for="field in $store.getters.getValidStates"
+                              :key="field"
                       v-on:click="
-                        notifyAlertChange(data.item, 'alertState', 'Open');
+                        notifyAlertChange(data.item, 'alertState', $event.target.innerText);
                         $el.ownerDocument.body.click();
                       "
-                      >Open</b-button
-                    >
-                    <b-button
-                      variant="Resolved"
-                      v-on:click="
-                        notifyAlertChange(data.item, 'alertState', 'Resolved');
-                        $el.ownerDocument.body.click();
-                      "
-                      >Resolved</b-button
+                      >{{ field}}</b-button
                     >
                   </b-button-group>
                 </b-button-toolbar>
@@ -352,19 +466,23 @@ export default {
   computed: {
     currentAlerts: function () {
       const alertFilters = this.$store.getters.getAlertFilters;
+      const alertLevels = this.$store.getters.getAlertLevels;
+      const alertStates = this.$store.getters.getAlertStates;
       const alertFiltered = this.$store.getters.getDeDup;
       return this.$store.getters.getDeDup === "false"
         ? this.alerts.filter(function (item) {
             return (
-              alertFilters.length <= 0 ||
-              alertFilters.indexOf(item.alertCorrelationId) >= 0
+                (alertFilters.length <= 0 ||
+              alertFilters.indexOf(item.alertCorrelationId) >= 0) &&
+                (alertStates.length <= 0 ||alertStates.indexOf(item.alertState)>=0) &&
+                (alertLevels.length <= 0 ||alertLevels.indexOf(item.alertLevel)>=0)
             );
           })
         : alertFiltered === "filtered"
         ? this.visibleAlerts.filter(function (item) {
             return (
-              alertFilters.length <= 0 ||
-              alertFilters.indexOf(item.alertCorrelationId) >= 0
+                (alertFilters.length <= 0 ||
+              alertFilters.indexOf(item.alertCorrelationId) >= 0)
             );
           })
         : this.visibleAlerts;
@@ -382,18 +500,39 @@ export default {
     preventNav() {
       this.$rt.logout();
     },
+    sortLevels(el1, el2) {
+      const firstCharEl1 = el1.substr(0,1);
+      const firstCharEl2 = el2.substr(0,1);
+      if(firstCharEl1 === 'H') {
+        return -1;
+      }
+      if(firstCharEl2 === 'H') {
+        return 1;
+      }
+      if(firstCharEl2 > firstCharEl1) {
+        return 1;
+      } else if(firstCharEl2 < firstCharEl1) {
+        return -1
+      }
+      return 0;
+    },
     uniqueById(arr, prop) {
+      const alertStates = this.$store.getters.getAlertStates;
+      const alertLevels = this.$store.getters.getAlertLevels;
       return Object.values(
         arr.reduce(function (acc, item) {
           var entity =
             item && item[prop] && item[prop] === item.rule.uuid
               ? item[prop]
               : item[prop] + item.rule.uuid;
-          if (item && item[prop] && !acc[entity]) {
-            acc[entity] = item;
-            acc[entity].count = 1;
-          } else if (item && item[prop] && acc[entity]) {
-            acc[entity].count += 1;
+          if((alertStates.length <= 0 || alertStates.indexOf(item.alertState)>=0) &&
+              (alertLevels.length <= 0 || alertLevels.indexOf(item.alertLevel)>=0)) {
+            if (item && item[prop] && !acc[entity]) {
+              acc[entity] = item;
+              acc[entity].count = 1;
+            } else if (item && item[prop] && acc[entity]) {
+              acc[entity].count += 1;
+            }
           }
           return acc;
         }, {})
@@ -537,6 +676,7 @@ export default {
       ],
       alerts: [],
       editFilter: false,
+      stateFilter: false,
     };
   },
 };

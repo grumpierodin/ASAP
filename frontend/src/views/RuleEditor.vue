@@ -30,29 +30,13 @@
         <b-dropdown-form>
           <b-button-toolbar>
             <b-button-group class="mx-1">
-              <b-button
-                variant="High"
-                v-on:click="
-                  rule.alertLevel = 'High';
-                  $el.ownerDocument.body.click();
-                "
-                >High</b-button
-              >
-              <b-button
-                variant="Medium"
-                v-on:click="
-                  rule.alertLevel = 'Medium';
-                  $el.ownerDocument.body.click();
-                "
-                >Medium</b-button
-              >
-              <b-button
-                variant="Low"
-                v-on:click="
-                  rule.alertLevel = 'Low';
-                  $el.ownerDocument.body.click();
-                "
-                >Low</b-button
+              <b-button :variant="field" v-for="field in $store.getters.getValidLevels"
+                        :key="field"
+                        v-on:click="
+                        rule.alertLevel = $event.target.innerText;
+                        $el.ownerDocument.body.click();
+                      "
+              >{{ field}}</b-button
               >
             </b-button-group>
           </b-button-toolbar>

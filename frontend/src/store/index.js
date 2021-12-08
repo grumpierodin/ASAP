@@ -15,6 +15,10 @@ export default new Vuex.Store({
     deDup: "true",
     alertFilters: [],
     alertTextFilters: "",
+    alertStates: [],
+    alertLevels: [],
+    validStates: ['Open', 'Resolved'],
+    validLevels: ['High', 'Medium', 'Low'],
   },
   mutations: {
     setDeDup(state, dedup) {
@@ -25,6 +29,12 @@ export default new Vuex.Store({
     },
     setAlertFilters(state, filters) {
       state.alertFilters = filters;
+    },
+    setAlertStates(state, filters) {
+      state.alertStates = filters;
+    },
+    setAlertLevels(state, filters) {
+      state.alertLevels = filters;
     },
     setAlerts(state, alerts) {
       state.alerts = alerts;
@@ -64,6 +74,18 @@ export default new Vuex.Store({
     },
     getAlertFilters: (state) => {
       return state.alertFilters;
+    },
+    getAlertLevels: (state) => {
+      return state.alertLevels;
+    },
+    getAlertStates: (state) => {
+      return state.alertStates;
+    },
+    getValidStates: (state) => {
+      return state.validStates;
+    },
+    getValidLevels: (state) => {
+      return state.validLevels;
     },
     getDeDup: (state) => {
       return state.deDup;
