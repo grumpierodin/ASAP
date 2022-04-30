@@ -10,13 +10,14 @@ import com.grumpierodin.asap.repository.data.Alert;
 import com.grumpierodin.asap.repository.data.Event;
 import com.grumpierodin.asap.repository.data.Rule;
 import com.grumpierodin.asap.repository.data.Rules;
+import com.grumpierodin.asap.utils.JsonUtils;
+import org.assertj.core.api.Fail;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AlertTest {
     @org.junit.Rule
@@ -29,25 +30,20 @@ public class AlertTest {
             System.out.println(System.lineSeparator()+"finishing " + description.getMethodName());
         }
     };
-    ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
-            .registerModule(new ParameterNamesModule())
-            .registerModule(new Jdk8Module())
-            .registerModule(new JavaTimeModule());
+
     @Test
     public void CheckAlertRender() {
         try {
             String alertJson = "{\"message\":\"testing 1\", \"timestamp\":\"2021-06-06 17:17:00.000\", \"host\":\"localhost\", \"application\":\"app\"}";
-            Event event = mapper.readValue(alertJson, Event.class);
-
+            Event event = JsonUtils.jsonToObject(alertJson, Event.class);
             System.out.println(event.getMessage());
-            assertTrue("testing 1".equals(event.getMessage()));
+            assertEquals("testing 1",event.getMessage());
 
             String s = "[{\"name\":\"Change Me\",\"uuid\":\"ae1e63ca-3dc6-432c-8494-289ebb97eea2\",\"correlationId\":\"{{uuid}}\",\"regex\":\"(.+)\",\"outputTemplate\":\"{{$0}}\",\"schedules\":[{\"name\":\"Default\",\"uuid\":\"ab503946-5c8f-480e-aed8-79cf3b65f16c\",\"startTime\":\"00:00\",\"endTime\":\"23:59\",\"days\":[\"Sun\",\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\",\"Sat\"]}],\"actions\":[]}]";
             Rules rules = new Rules(s);
 
             System.out.println(rules.getRulesAsList().get(0).getUuid());
-            assertTrue("ae1e63ca-3dc6-432c-8494-289ebb97eea2".equals(rules.getRulesAsList().get(0).getUuid()));
+            assertEquals("ae1e63ca-3dc6-432c-8494-289ebb97eea2",rules.getRulesAsList().get(0).getUuid());
 
             for(Rule rule : rules.getRules()){
                 Alert alert = new Alert(event, rule);
@@ -55,28 +51,28 @@ public class AlertTest {
                 assertTrue(alert.isAlertAble());
                 alert.renderAlert();
                 System.out.println(alert.getAlertText());
-                assertTrue("testing 1".equals(alert.getAlertText()));
+                assertEquals("testing 1",alert.getAlertText());
                 System.out.println(alert.getAlertCorrelationId());
-                assertTrue("ae1e63ca-3dc6-432c-8494-289ebb97eea2".equals(alert.getAlertCorrelationId()));
+                assertEquals("ae1e63ca-3dc6-432c-8494-289ebb97eea2",alert.getAlertCorrelationId());
             }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Fail.fail(e.getLocalizedMessage());
         }
     }
     @Test
     public void CheckAlertRenderScheduleFail() {
         try {
             String alertJson = "{\"message\":\"testing 1\", \"timestamp\":\"2021-06-06 17:17:00.000\", \"host\":\"localhost\", \"application\":\"app\"}";
-            Event event = mapper.readValue(alertJson, Event.class);
+            Event event = JsonUtils.jsonToObject(alertJson, Event.class);
 
             System.out.println(event.getMessage());
-            assertTrue("testing 1".equals(event.getMessage()));
+            assertEquals("testing 1",event.getMessage());
 
             String s = "[{\"name\":\"Change Me\",\"uuid\":\"ae1e63ca-3dc6-432c-8494-289ebb97eea2\",\"correlationId\":\"{{uuid}}\",\"regex\":\"(.+)\",\"outputTemplate\":\"{{$0}}\",\"schedules\":[{\"name\":\"Default\",\"uuid\":\"ab503946-5c8f-480e-aed8-79cf3b65f16c\",\"startTime\":\"00:00\",\"endTime\":\"23:59\",\"days\":[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\",\"Sat\"]}],\"actions\":[]}]";
             Rules rules = new Rules(s);
 
             System.out.println(rules.getRulesAsList().get(0).getUuid());
-            assertTrue("ae1e63ca-3dc6-432c-8494-289ebb97eea2".equals(rules.getRulesAsList().get(0).getUuid()));
+            assertEquals("ae1e63ca-3dc6-432c-8494-289ebb97eea2",rules.getRulesAsList().get(0).getUuid());
             // timestamp is a sunday so should fail to meet schedule criteria and not render alertText/AlertCorrelationId
             for(Rule rule : rules.getRules()){
                 Alert alert = new Alert(event, rule);
@@ -84,12 +80,13 @@ public class AlertTest {
                 assertFalse(alert.isAlertAble());
                 alert.renderAlert();
                 System.out.println(alert.getAlertText());
-                assertFalse("testing 1".equals(alert.getAlertText()));
+                assertNotEquals("testing 1",alert.getAlertText());
                 System.out.println(alert.getAlertCorrelationId());
-                assertFalse("ae1e63ca-3dc6-432c-8494-289ebb97eea2".equals(alert.getAlertCorrelationId()));
+                assertNotEquals("ae1e63ca-3dc6-432c-8494-289ebb97eea2",alert.getAlertCorrelationId());
             }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Fail.fail(e.getLocalizedMessage());
         }
+
     }
 }

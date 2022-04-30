@@ -2,7 +2,7 @@
 
 ## What is it?
 
-ASAP is system for receving, correlating, suppressing incoming events using http post interface.
+ASAP is system for receiving, correlating, suppressing incoming events using http post interface.
 
 There is a restful interface implemented and also a "dashboard" like UI for displaying the alerts and configuring the alert rules.
 
@@ -41,22 +41,21 @@ Expect timestamp format : yyyy-MM-dd HH:mm:ss.SSS
     message: "hostname: local host has gone down"
 }
 ```
-<br>
+
 Example:
 
-<br>
+
 ```
 hostname: localhost has gone down
 ```
-<br>
+
 regex
 
-<br>
 ```
 .+:.+(?<host>\w+).+
 ```
-<br>
-In the output temlate you could define
+
+In the output template you could define
 
 Send entire regex match
 
@@ -85,7 +84,7 @@ The rules can have a limited number of simplistic filters applied to prevent ale
 | filter | interval | events | Description |
 | ------ | -------- | ------ | ----------- |
 | suppress | seconds | count | send alert if less than events in time interval |
-| threshold | second | count | send alert if events in time  interval exceeds events |
+| breach | second | count | send alert if events in time  interval exceeds events |
 |  |  |  |  |
 
 Originally some additional filters were planned, as yet these have not yet been implemented.
