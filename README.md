@@ -55,7 +55,7 @@ regex
 .+:.+(?<host>\w+).+
 ```
 
-In the output temlate you could define
+In the output template you could define
 
 Send entire regex match
 
